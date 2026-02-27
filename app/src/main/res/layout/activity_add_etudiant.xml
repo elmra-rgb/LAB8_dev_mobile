@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".AddEtudiant">
+
+    <!-- Champ Nom -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nom :"
+        android:textSize="17sp"
+        android:paddingBottom="10dp"
+        android:textColor="@android:color/holo_green_dark" />
+
+    <EditText
+        android:id="@+id/saisie_identite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Saisir le nom"
+        android:inputType="textPersonName"
+        android:paddingBottom="20dp" />
+
+    <!-- Champ Prénom -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Prénom :"
+        android:textSize="17sp"
+        android:paddingBottom="10dp"
+        android:textColor="@android:color/holo_green_dark" />
+
+    <EditText
+        android:id="@+id/saisie_prenom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Saisir le prénom"
+        android:inputType="textPersonName"
+        android:paddingBottom="20dp" />
+
+    <!-- Spinner Ville -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ville :"
+        android:textSize="17sp"
+        android:paddingBottom="10dp"
+        android:textColor="@android:color/holo_green_dark" />
+
+    <Spinner
+        android:id="@+id/choix_localite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/liste_agglomeration"
+        android:paddingBottom="20dp" />
+
+    <!-- RadioGroup Sexe -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sexe :"
+        android:textSize="17sp"
+        android:paddingBottom="10dp"
+        android:textColor="@android:color/holo_green_dark" />
+
+    <RadioGroup
+        android:id="@+id/groupe_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/choix_masculin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Homme"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/choix_feminin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Femme"
+            android:layout_marginStart="20dp" />
+    </RadioGroup>
+
+    <!-- Bouton -->
+    <Button
+        android:id="@+id/bouton_envoi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ajouter l'étudiant"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>

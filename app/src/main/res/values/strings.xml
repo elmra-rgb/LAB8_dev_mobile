@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Gestion Étudiants</string>
+
+    <string-array name="liste_agglomeration">
+        <item>Rabat</item>
+        <item>Casablanca</item>
+        <item>Marrakech</item>
+        <item>Fès</item>
+        <item>Tanger</item>
+        <item>Agadir</item>
+        <item>Paris</item>
+    </string-array>
+</resources>

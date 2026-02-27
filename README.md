@@ -1,44 +1,40 @@
 # LAB 8 – Consommation d'un Web Service PHP avec Volley
 
-## Aperçu du laboratoire
+## Aperçu du projet
 
-Ce laboratoire a pour objectif de développer une application Android complète communiquant avec un web service PHP via la bibliothèque Volley. L'application permet d'ajouter des étudiants et de visualiser la liste via des appels réseau asynchrones.
-
-## Architecture du projet
-
-Le laboratoire est divisé en trois parties distinctes :
-1. **Partie 1** : Configuration du serveur et création de la base de données
-2. **Partie 2** : Développement du web service PHP
-3. **Partie 3** : Développement de l'application Android
+Ce laboratoire a pour objectif de développer une application Android complète communiquant avec un web service PHP via la bibliothèque Volley. L'application permet d'ajouter des étudiants à une base de données MySQL et d'afficher la liste mise à jour après chaque ajout.
 
 ---
 
-## Partie 1 — Configuration du serveur et base de données
+## Architecture du projet
 
-### Objectifs
-- Mettre en place un environnement de développement local avec MAMP
-- Créer une base de données MySQL
-- Structurer la table des étudiants
+Le projet est structuré en deux parties distinctes :
 
-### Étapes réalisées
+1. **Backend PHP** : Web service RESTful développé en PHP 8, connecté à une base de données MySQL.
+2. **Application Android** : Interface utilisateur développée en Java utilisant Volley pour les requêtes réseau et Gson pour le parsing JSON.
 
-#### 1. Installation et configuration de MAMP
-MAMP (Mac, Apache, MySQL, PHP) a été installé pour servir d'environnement de développement local. Le serveur Apache a été configuré pour utiliser le dossier `htdocs` comme racine des projets PHP.
+---
 
-| Configuration MAMP |
-|:------------------:|
-| <img src="screenshots/mamp.png" width="400"> |
+## Partie 1 – Configuration du serveur et de la base de données
 
-#### 2. Création de la base de données
-Une base de données nommée `school1` a été créée via phpMyAdmin pour stocker les informations des étudiants.
+### Étape 1.1 – Installation et configuration de MAMP
 
-#### 3. Création de la table `Etudiant`
-La table contient les champs suivants :
-- `id` : identifiant unique auto-incrémenté
-- `nom` : nom de l'étudiant
-- `prenom` : prénom de l'étudiant
-- `ville` : ville de résidence
-- `sexe` : genre de l'étudiant
+<img src="screenshots/mamp.png" width="600" alt="Configuration MAMP">
+
+**Actions réalisées :**
+- Installation de MAMP sur macOS (équivalent de XAMPP)
+- Configuration du document root : `/Applications/MAMP/htdocs/`
+- Démarrage des serveurs Apache et MySQL
+- Configuration du port MySQL (par défaut : 8889)
+
+### Étape 1.2 – Création de la base de données
+
+```sql
+CREATE DATABASE school1;
+USE school1;
+```
+
+### Étape 1.3 – Création de la table Etudiant
 
 ```sql
 CREATE TABLE Etudiant (
@@ -50,196 +46,203 @@ CREATE TABLE Etudiant (
 );
 ```
 
-#### 4. Insertion des données initiales
-Des enregistrements tests ont été ajoutés pour valider le fonctionnement de la base.
+### Étape 1.4 – Insertion des données initiales
 
-| Structure et données de la table |
-|:-------------------------------:|
-| <img src="screenshots/data_result.png" width="600"> |
+```sql
+INSERT INTO Etudiant (nom, prenom, ville, sexe) VALUES 
+('Alaoui', 'yahya', 'Rabat', 'homme'),
+('Elhezzam', 'Rania', 'Rabat', 'femme'),
+('Berrada', 'Hamza', 'Fes', 'homme');
+```
+
+### Résultat : Structure de la table initiale
+
+<img src="screenshots/table_etudiant.png" width="800" alt="Table Etudiant initiale">
+
+*La table contient 3 enregistrements de test pour valider le fonctionnement du web service.*
 
 ---
 
-## Partie 2 — Développement du web service PHP
+## Partie 2 – Développement du Web Service PHP
 
-### Objectifs
-- Créer une architecture PHP structurée (MVC simplifié)
-- Développer des endpoints RESTful pour la gestion des étudiants
-- Tester les web services avec Advanced REST Client
-
-### Architecture du projet PHP
+### Étape 2.1 – Structure du projet PHP
 
 ```
-lab8_dev/
+/Applications/MAMP/htdocs/lab8_dev/
 ├── classes/
-│   └── Etudiant.php          (modèle de données)
+│   └── Etudiant.php
 ├── connexion/
-│   └── Connexion.php         (gestion de la connexion PDO)
+│   └── Connexion.php
 ├── dao/
-│   └── IDao.php              (interface générique CRUD)
+│   └── IDao.php
 ├── service/
-│   └── EtudiantService.php   (implémentation des méthodes)
+│   └── EtudiantService.php
 └── ws/
-    ├── createEtudiant.php    (endpoint POST pour ajouter)
-    └── loadEtudiant.php      (endpoint GET pour lister)
+    ├── createEtudiant.php
+    └── loadEtudiant.php
 ```
 
-### Endpoints développés
+### Étape 2.2 – Points d'entrée du web service
 
-#### 1. `createEtudiant.php` (POST)
-Reçoit les données d'un nouvel étudiant, les insère en base et retourne la liste mise à jour au format JSON.
+Deux web services ont été développés :
 
-#### 2. `loadEtudiant.php` (GET)
-Retourne la liste complète des étudiants au format JSON.
+| Fichier | Méthode | Fonction |
+|---------|---------|----------|
+| `createEtudiant.php` | POST | Ajout d'un nouvel étudiant |
+| `loadEtudiant.php` | GET | Récupération de tous les étudiants |
 
-### Tests des web services
+### Étape 2.3 – Test du service d'ajout (POST)
 
-Les web services ont été testés avec **Advanced REST Client** (extension Chrome) avant l'intégration Android.
+<img src="screenshots/test_creat.png" width="600" alt="Test POST avec REST Client">
 
-#### Test de l'ajout d'un étudiant
-Requête POST envoyée avec les paramètres :
-- `nom` = Dupont
-- `prenom` = Lina
-- `ville` = Paris
-- `sexe` = femme
+**Requête envoyée :**
+- URL : `http://localhost:8888/lab8_dev/ws/createEtudiant.php`
+- Méthode : POST
+- Body : x-www-form-urlencoded
+- Paramètres : `nom=Dupont`, `prenom=Lina`, `ville=Paris`, `sexe=femme`
 
-| Test d'ajout (POST) | Réponse du serveur |
-|:-------------------:|:-------------------:|
-| <img src="screenshots/test_creat.png" width="350"> | <img src="screenshots/result_creat.png" width="350"> |
+### Étape 2.4 – Réponse du service d'ajout
 
-#### Test de chargement de la liste
-Requête GET pour récupérer tous les étudiants.
+<img src="screenshots/result_creat.png" width="600" alt="Réponse JSON après ajout">
 
-| Test de chargement (GET) | Réponse JSON |
-|:------------------------:|:-------------:|
-| <img src="screenshots/test_load.png" width="350"> | <img src="screenshots/result_load.png" width="350"> |
+**Réponse JSON :**
+```json
+{
+  "id": 1,
+  "nom": "Alaoui",
+  "prenom": "yahya",
+  "ville": "Rabat",
+  "sexe": "homme"
+}
+```
 
-### Validation des données en base
-Après les tests, la base de données a été vérifiée pour confirmer l'insertion correcte des enregistrements.
+Le service retourne la liste complète mise à jour après chaque ajout.
 
-| État final de la table |
-|:----------------------:|
-| <img src="screenshots/table_etudiant.png" width="600"> |
+### Étape 2.5 – Test du service de lecture (GET)
+
+<img src="screenshots/test_load.png" width="600" alt="Test GET avec REST Client">
+
+**Requête :** `GET http://localhost:8888/lab8_dev/ws/loadEtudiant.php`
+
+### Étape 2.6 – Réponse du service de lecture
+
+<img src="screenshots/result_load.png" width="600" alt="Réponse JSON liste étudiants">
+
+**Réponse JSON complète :**
+```json
+[
+  {"id": 1, "nom": "Alaoui", "prenom": "yahya", "ville": "Rabat", "sexe": "homme"},
+  {"id": 2, "nom": "Elhezzam", "prenom": "Rania", "ville": "Rabat", "sexe": "femme"},
+  {"id": 3, "nom": "Berrada", "preprenom": "Hamza", "ville": "Fes", "sexe": "homme"},
+  {"id": 4, "nom": "Dupont", "prenom": "Lina", "ville": "Paris", "sexe": "femme"}
+]
+```
+
+**Validation :** Les 4 étudiants sont correctement retournés au format JSON.
 
 ---
 
-## Partie 3 — Application Android (Volley + Gson)
+## Partie 3 – Application Android
 
-### Objectifs
-- Créer une application Android communiquant avec le web service
-- Utiliser Volley pour les requêtes réseau
-- Utiliser Gson pour le parsing JSON
-- Gérer la configuration réseau pour Android 9+
-
-### Configuration du projet
-
-#### Structure du projet Android
+### Étape 3.1 – Structure du projet Android
 
 ```
 app/
-├── src/main/
-│   ├── java/com.example.lab8_deve/
-│   │   ├── beans/
-│   │   │   └── Etudiant.java          (modèle de données)
-│   │   └── AddEtudiant.java            (activité principale)
-│   ├── res/
-│   │   ├── layout/
-│   │   │   └── activity_add_etudiant.xml
-│   │   ├── values/
-│   │   │   └── strings.xml
-│   │   └── xml/
-│   │       └── network_security_config.xml
+├── manifests/
 │   └── AndroidManifest.xml
+├── java/com.example.lab8_dev/
+│   ├── beans/
+│   │   └── Etudiant.java
+│   └── AddEtudiant.java
+├── res/
+│   ├── layout/
+│   │   └── activity_add_etudiant.xml
+│   ├── values/
+│   │   └── strings.xml
+│   └── xml/
+│       └── network_security_config.xml
+└── build.gradle
 ```
 
-#### Dépendances utilisées
-- **Volley** : `com.android.volley:volley:1.2.1` (requêtes réseau)
-- **Gson** : `com.google.code.gson:gson:2.10.1` (parsing JSON)
+### Étape 3.2 – Interface d'ajout d'un étudiant
 
-#### Configuration réseau (Android 9+)
-Un fichier de configuration réseau a été créé pour autoriser le trafic HTTP en clair (nécessaire pour les tests en local).
+<img src="screenshots/ajout.png" width="300" alt="Interface d'ajout">
 
-```xml
-<network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">10.0.2.2</domain>
-    </domain-config>
-</network-security-config>
+**Champs du formulaire :**
+- Nom (EditText)
+- Prénom (EditText)
+- Ville (Spinner avec liste prédéfinie)
+- Sexe (RadioGroup : Homme/Femme)
+- Bouton "Ajouter"
+
+### Étape 3.3 – Test d'ajout d'un étudiant
+
+Un nouvel étudiant a été ajouté via l'application :
+
+- **Nom** : hiba
+- **Prénom** : himde
+- **Ville** : Marrakech
+- **Sexe** : Femme
+
+<img src="screenshots/ajout.png" width="300" alt="Formulaire rempli">
+
+### Étape 3.4 – Vérification dans la base de données
+
+<img src="screenshots/data_result.png" width="800" alt="Données après ajout">
+
+**État de la table après ajout :**
+
+| id | nom     | prenom | ville     | sexe  |
+|----|---------|--------|-----------|-------|
+| 1  | Alaoui  | yahya  | Rabat     | homme |
+| 2  | Elhezzam| Rania  | Rabat     | femme |
+| 3  | Berrada | Hamza  | Fes       | homme |
+| 4  | Dupont  | Lina   | Paris     | femme |
+| 5  | hiba    | himde  | Marrakech | Femme |
+
+### Étape 3.5 – Vérification via l'interface phpMyAdmin
+
+<img src="screenshots/verifie_ajout.png" width="800" alt="phpMyAdmin après ajout">
+
+*La table contient maintenant 5 étudiants, confirmant le bon fonctionnement de l'ajout.*
+
+### Étape 3.6 – Analyse des logs de l'application
+
+Les logs suivants ont été capturés lors de l'exécution de l'application, confirmant le bon fonctionnement des requêtes Volley et du parsing Gson.
+
+#### Logcat - Réponse brute du serveur
+<img src="screenshots/verif_logcat.png" width="600" alt="Logcat - Réponse JSON">
+
+#### Logcat - Parsing des étudiants (1/2)
+<img src="screenshots/verif_logcat2.png" width="600" alt="Logcat - Liste étudiants">
+
+#### Logcat - Parsing des étudiants (2/2)
+<img src="screenshots/verif_logcat3.png" width="600" alt="Logcat - Suite liste">
+
+**Extrait des logs :**
+```
+D/RESPONSE: [{"id":1,"nom":"Alaoui","prenom":"yahya","ville":"Rabat","sexe":"homme"},
+             {"id":2,"nom":"Elhezzam","prenom":"Rania","ville":"Rabat","sexe":"femme"},
+             {"id":3,"nom":"Berrada","prenom":"Hamza","ville":"Fes","sexe":"homme"},
+             {"id":4,"nom":"Dupont","prenom":"Lina","ville":"Paris","sexe":"femme"}]
+
+D/ETUDIANT: 1 - Alaoui yahya (Rabat, homme)
+D/ETUDIANT: 2 - Elhezzam Rania (Rabat, femme)
+D/ETUDIANT: 3 - Berrada Hamza (Fes, homme)
+D/ETUDIANT: 4 - Dupont Lina (Paris, femme)
 ```
 
-### Interface utilisateur
-
-L'application propose un formulaire simple avec :
-- Champ **Nom**
-- Champ **Prénom**
-- Spinner **Ville** (liste déroulante)
-- RadioGroup **Sexe** (Homme/Femme)
-- Bouton **Ajouter**
-
-| Interface de l'application |
-|:--------------------------:|
-| <img src="screenshots/ajout.png" width="300"> |
-
-### Fonctionnement de l'application
-
-#### 1. Envoi des données
-Lorsque l'utilisateur clique sur "Ajouter", une requête POST est envoyée au web service avec les données du formulaire. La bibliothèque Volley gère l'appel asynchrone.
-
-#### 2. Traitement de la réponse
-La réponse JSON reçue est parsée avec Gson pour être convertie en objets Java. La liste mise à jour est affichée dans les logs (Logcat).
-
-#### 3. Retour visuel
-Un Toast confirme le succès de l'opération et le formulaire est automatiquement réinitialisé.
-
-### Tests et validation
-
-#### Test d'ajout d'un étudiant
-L'application a été testée avec l'étudiant : Hiba Himde, ville Marrakech, sexe Féminin.
-
-| Ajout dans l'application |
-|:------------------------:|
-| <img src="screenshots/ajout.png" width="300"> |
-
-#### Vérification en base de données
-Après l'ajout, la base de données a été consultée pour confirmer la présence du nouvel enregistrement.
-
-| Résultat dans phpMyAdmin |
-|:------------------------:|
-| <img src="screenshots/verifie_ajout.png" width="600"> |
-
-#### Analyse des logs (Logcat)
-Les logs ont été analysés pour vérifier le bon fonctionnement des appels réseau et du parsing JSON.
-
-| Logcat - Réponse serveur |
-|:------------------------:|
-| <img src="screenshots/verif_logcat.png" width="600"> |
-
-| Logcat - Parsing des données |
-|:----------------------------:|
-| <img src="screenshots/verif_logcat2.png" width="600"> |
-
-| Logcat - Détail des objets |
-|:--------------------------:|
-| <img src="screenshots/verif_logcat3.png" width="600"> |
 
 ---
 
-## Compétences acquises
+## Points techniques abordés
 
-À travers ce laboratoire, les compétences suivantes ont été développées :
-
-1. **Développement web côté serveur**
-   - Création d'une API RESTful avec PHP
-   - Utilisation de PDO pour l'accès sécurisé à MySQL
-   - Structuration d'un projet en couches (DAO, Service)
-
-2. **Développement mobile Android**
-   - Consommation de web services avec Volley
-   - Parsing JSON avec Gson
-   - Gestion des permissions et configuration réseau
-   - Création d'interfaces utilisateur dynamiques
-
-3. **Intégration et tests**
-   - Test des API avec Advanced REST Client
-   - Débogage avec Logcat
-   - Validation des données en base
+- **PDO MySQL** : Connexion sécurisée à la base de données
+- **Web service RESTful** : Points d'entrée GET et POST
+- **JSON** : Format d'échange de données
+- **Volley** : Bibliothèque de requêtes réseau pour Android
+- **Gson** : Parsing JSON en objets Java
+- **Threading** : Gestion asynchrone des requêtes réseau
+- **Material Design** : Interface utilisateur moderne
+- **Logcat** : Débogage et validation des échanges
 
